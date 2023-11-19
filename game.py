@@ -1,12 +1,17 @@
 from settings import *
+from random import choice
 
+from timer import Timer
 
 class Game:
+
     def __init__(self):
 
+        #general
         self.surface = pygame.Surface((GAME_WIDTH,GAME_HEIGHT))
         self.display_surface = pygame.display.get_surface() 
         self.rect = self.surface.get_rect(topleft = (PADDING, PADDING))
+        self.sprites = pygame.sprite.Group()
 
 
         # lines
@@ -14,6 +19,24 @@ class Game:
         self.line_surface.fill((0,255,0))
         self.line_surface.set_colorkey((0,255,0))
         self.line_surface.set_alpha(120) # transparency
+
+        #tetromino
+
+        self.tetromino = Tetromino(choice(list(TETROMINOS.keys())), self.sprites)
+
+        #timer
+        self.timers = {
+            'vertical move' : Timer(UPDATE_START_SPEED, True, self.move_down)
+        }
+
+        self.timers['vertical move'].activate()
+
+    def timer_update(self):
+        for timer in self.timers.values():
+            timer.update()
+        
+    def move_down(self):
+        self.tetromino.move_down()    
 
     def draw_grid(self):
 
@@ -31,9 +54,45 @@ class Game:
 
     def run(self):
 
+        self.timer_update()
+
         self.surface.fill(GRAY)
+        self.sprites.draw(self.surface)
 
         self.draw_grid()
         self.display_surface.blit(self.surface, (PADDING, PADDING))
         # display , color , rect, width, corner radius
-        pygame.draw_rect(self.display_surface, LINE_COLOR, self.rect, 2, 2)
+        pygame.draw.rect(self.display_surface, LINE_COLOR, self.rect, 2, 2)
+
+class Tetromino:
+    def __init__(self, shape, group):
+
+        #setup
+
+        self.block_positions = TETROMINOS[shape]['shape'] #indexing dict.
+        self.color = TETROMINOS[shape]['color']
+
+        #create blocks 
+        self.blocks = [Block(group, pos, self.color) for pos in self.block_positions]
+
+    def move_down(self):
+        for block in self.blocks:
+            block.pos.y += 1
+        
+
+
+class Block(pygame.sprite.Sprite):
+    def __init__(self, group, pos, color):
+
+        #general
+        super().__init__(group)
+        self.image = pygame.Surface((CELL_SIZE,CELL_SIZE))
+        self.image.fill(color)
+
+        #position
+
+        #store pos as attribute
+        self.pos = pygame.Vector2(pos) + BLOCK_OFFSET
+        x = self.pos.x * CELL_SIZE
+        y = self.pos.y * CELL_SIZE
+        self.rect = self.image.get_rect(topleft = (x,y))
