@@ -22,9 +22,14 @@ class Main:
         self.next_shapes = [choice(list(TETROMINOS.keys())) for shape in range(3)]
         print(self.next_shapes)
 
-        self.game = Game(self.get_next_shape)
+        self.game = Game(self.get_next_shape, self.update_score)
         self.score = Score()
         self.preview = Preview()
+
+    def update_score(self, lines, score, level):
+        self.score.lines = lines
+        self.score.score = score
+        self.score.level = level
 
     
     def get_next_shape(self):
