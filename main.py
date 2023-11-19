@@ -4,6 +4,7 @@ from sys import exit
 
 from game import Game
 from score import Score
+from preview import Preview
 
 
 class Main:
@@ -17,6 +18,7 @@ class Main:
 
         self.game = Game()
         self.score = Score()
+        self.preview = Preview()
 
     def run(self):
         while True:
@@ -29,6 +31,7 @@ class Main:
 
             self.game.run()
             self.score.run()
+            self.preview.run()
 
             pygame.display.update()
             self.clock.tick() #fps
