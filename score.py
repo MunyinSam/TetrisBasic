@@ -15,8 +15,8 @@ class Score:
         self.increment_height = self.surface.get_height() / 3
 
         #data will be updated in main by py
-        self.score = 0
         self.level = 1
+        self.score = 0
         self.lines = 0
     
     def display_text(self, pos, text):
