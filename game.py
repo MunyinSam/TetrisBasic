@@ -5,13 +5,16 @@ from timer import Timer
 
 class Game:
 
-    def __init__(self):
+    def __init__(self, get_next_shape):
 
         #general
         self.surface = pygame.Surface((GAME_WIDTH,GAME_HEIGHT))
         self.display_surface = pygame.display.get_surface() 
         self.rect = self.surface.get_rect(topleft = (PADDING, PADDING))
         self.sprites = pygame.sprite.Group()
+
+        # game connection
+        self.get_next_shape = get_next_shape
 
 
         # lines
@@ -23,7 +26,7 @@ class Game:
         #tetromino
         self.field_data = [[0 for x in range(COLUMNS)] for y in range(ROWS)]
         self.tetromino = Tetromino(
-                    'I',#choice(list(TETROMINOS.keys())),
+                    choice(list(TETROMINOS.keys())),
                     self.sprites,
                     self.create_new_tetromino,
                     self.field_data)
@@ -31,7 +34,8 @@ class Game:
         #timer
         self.timers = {
             'vertical move' : Timer(UPDATE_START_SPEED, True, self.move_down),
-            'horizontal move' : Timer(MOVE_WAIT_TIME)
+            'horizontal move' : Timer(MOVE_WAIT_TIME),
+            'rotate': Timer(ROTATE_WAIT_TIME)
         }
 
         self.timers['vertical move'].activate()
@@ -40,7 +44,7 @@ class Game:
 
         self.check_finished_rows()
         self.tetromino = Tetromino(
-                    'I',#choice(list(TETROMINOS.keys())),
+                    self.get_next_shape(),
                     self.sprites,
                     self.create_new_tetromino,
                     self.field_data)
@@ -70,6 +74,8 @@ class Game:
 
         keys = pygame.key.get_pressed()
 
+
+    # checking horizontal movement
         if not self.timers['horizontal move'].active:
 
             if keys[pygame.K_LEFT]:
@@ -79,6 +85,15 @@ class Game:
             if keys[pygame.K_RIGHT]:
                 self.tetromino.move_horizontal(1)
                 self.timers['horizontal move'].activate()
+
+    # check a rotation
+        # so we need to wait out the timer to run it cant spam
+
+        if not self.timers['rotate'].active:
+            
+            if keys[pygame.K_UP]:
+                self.tetromino.rotate()
+                self.timers['rotate'].activate()
 
     def check_finished_rows(self):
 
@@ -126,7 +141,7 @@ class Tetromino:
     def __init__(self, shape, group, create_new_tetromino, field_data):
 
         #setup
-
+        self.shape = shape
         self.block_positions = TETROMINOS[shape]['shape'] #indexing dict.
         self.color = TETROMINOS[shape]['color']
         self.create_new_tetromino = create_new_tetromino
@@ -161,8 +176,40 @@ class Tetromino:
 
             #for row in self.field_data:
                 #print(row)
+    
+    def rotate(self):
+        if self.shape != 'O':
+
+            # 1 need pivot point
+            pivot_pos = self.blocks[0].pos # the 0,0 one
+
+            # 2 New block positions
+            new_block_positions = [block.rotate(pivot_pos) for block in self.blocks]
+
+            # 3 Collision check
+            for pos in new_block_positions:
+
+                #horizontal
+                if pos.x < 0 or pos.x >= COLUMNS:
+                    return #it would end and wont continue (cant rotate)
+
+                #field check / collision with other pieces
+
+                if self.field_data[int(pos.y)][int(pos.x)]: # true
+                    return
+
+                # vertical / floor check
+
+                if pos.y > ROWS:
+                    return
+
+            # 4 Impliment new pos
+            for i, block in enumerate(self.blocks):
+                block.pos = new_block_positions[i]
         
 class Block(pygame.sprite.Sprite):
+
+  
     def __init__(self, group, pos, color):
 
         #general
@@ -178,6 +225,15 @@ class Block(pygame.sprite.Sprite):
         y = self.pos.y * CELL_SIZE
         self.rect = self.image.get_rect(topleft = (x,y))
 
+    def rotate(self, pivot_pos):
+        '''
+        distance = self.pos - pivot_pos
+        rotated = distance.rotate(90)
+        new_pos = pivot_pos + rotated
+        return new_pos
+        '''
+        return pivot_pos + (self.pos - pivot_pos).rotate(90)
+        
 
     def horizontal_collide(self, x, field_data):
         if not 0 <=  x < COLUMNS:
