@@ -14,6 +14,7 @@ class Main:
                     pygame.quit()
                     exit()
             
+            self.display_surface.fill('gray')
             pygame.display.update()
 
 
