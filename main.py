@@ -22,7 +22,7 @@ class Main:
 
         self.game = Game(self.get_next_shape)
         self.score = Score()
-        self.preview = Preview(self.next_shapes)
+        self.preview = Preview()
 
     
     def get_next_shape(self):
@@ -41,7 +41,7 @@ class Main:
 
             self.game.run()
             self.score.run()
-            self.preview.run()
+            self.preview.run(self.next_shapes)
 
             pygame.display.update()
             self.clock.tick() #fps
