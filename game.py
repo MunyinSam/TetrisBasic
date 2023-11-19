@@ -55,6 +55,7 @@ class Game:
     def run(self):
 
         self.timer_update()
+        self.sprites.update() #takes all the sprite
 
         self.surface.fill(GRAY)
         self.sprites.draw(self.surface)
@@ -96,3 +97,14 @@ class Block(pygame.sprite.Sprite):
         x = self.pos.x * CELL_SIZE
         y = self.pos.y * CELL_SIZE
         self.rect = self.image.get_rect(topleft = (x,y))
+
+    def update(self):
+        '''
+        #print(self.pos)
+        x = self.pos.x * CELL_SIZE
+        y = self.pos.y * CELL_SIZE
+        self.pos * 40
+        # (1,3) *40 = (40,120)
+        self.rect = self.image.get_rect(topleft = self.pos * CELL_SIZE)
+        '''
+        self.rect.topleft = self.pos * CELL_SIZE
