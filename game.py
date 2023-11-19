@@ -43,6 +43,8 @@ class Game:
 
         self.timers['vertical move'].activate()
 
+        
+
     def create_new_tetromino(self):
 
         self.check_finished_rows()
@@ -101,13 +103,13 @@ class Game:
         # down speed up
         if not self.down_pressed and keys[pygame.K_DOWN]:
             self.down_pressed = True
-            print('pressing down')
+            self.timers['vertical move'].duration = self.down_speed_faster
 
 
         # We previously hold the down key but not now
         if self.down_pressed and not keys[pygame.K_DOWN]:
             self.down_pressed = False
-            print('Released the down key')
+            self.timers['vertical move'].duration = self.down_speed
 
     def check_finished_rows(self):
 

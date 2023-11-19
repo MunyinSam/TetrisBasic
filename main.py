@@ -2,6 +2,8 @@ from settings import *
 from sys import exit
 #components
 
+# self = attributes
+
 from game import Game
 from score import Score
 from preview import Preview
