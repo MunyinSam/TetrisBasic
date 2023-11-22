@@ -43,7 +43,7 @@ class Game:
 
         self.timers['vertical move'].activate()
 
-        # score
+        # score dont mess this up
         self.current_level = 1
         self.current_score = 0
         self.current_lines = 0
